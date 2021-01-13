@@ -78,7 +78,6 @@ const inviteCodes = [
             }
             // await shareCodesFormat()
             $.newShareCodes = [
-                "S5KkcRxYa9AeGcUv1nfNbdg",
                 "S9qQiH0xAq1LQJhk",
             ];
             await jdWish()
