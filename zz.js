@@ -62,7 +62,8 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
         $.isLogin = true;
         $.nickName = '';
         message = '';
-        console.log(`\n第${$.index}个账号信息: ${$.nickName || $.UserName}\n`);
+        console.log(`\n\n\n*************************************************************`);
+        console.log(`第${$.index}个账号信息: ${$.nickName || $.UserName}`);
         await TotalBean();
         if (!$.isLogin) {
             $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -74,16 +75,17 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
         }
         await jdWish()
     }
+    console.log(`\n\n\n-------------------------------------------------------------`);
     for (let i = 0; i < cookiesArr.length; i++) {
         $.canHelp = true
-        if (cookiesArr[i]) continue;
+        if (!cookiesArr[i]) continue;
         cookie = cookiesArr[i];
         for (let j = 0; j < $.tuanList.length; ++j) {
             if(i == j || typeof $.tuanList[j] == "undefined") {
                 //跳过自己给自己团助力
                 continue;
             }
-            console.log(`\n第${parseInt(i+1)}个账号开始助力第${parseInt(j+1)}个团\n`);
+            console.log(`第${parseInt(i+1)}个账号开始助力第${parseInt(j+1)}个团`);
             await helpFriendTuan($.tuanList[j]);
             if (!$.canHelp) break
         }
@@ -116,7 +118,7 @@ async function jdWish() {
     await getTaskList()
     $.nowBean = parseInt($.totalBeanNum)
     $.nowNum = parseInt($.totalNum)
-    console.log(`\n第${$.index}个账号开始做任务\n`);
+    console.log(`第${$.index}个账号开始做任务`);
     for (let i = 0; i < $.taskList.length; ++i) {
         let task = $.taskList[i]
         if (task['taskId'] === 1 && task['status'] !== 2) {
@@ -133,11 +135,11 @@ async function jdWish() {
 
 function showMsg() {
     return new Promise(async resolve => {
-        message += `本次获得${parseInt($.totalBeanNum) - $.nowBean}京豆，${parseInt($.totalNum) - $.nowNum}金币\n`
-        message += `累计获得${$.totalBeanNum}京豆，${$.totalNum}金币\n`
+        message += `本次获得${parseInt($.totalBeanNum) - $.nowBean}京豆，${parseInt($.totalNum) - $.nowNum}金币`
+        message += `累计获得${$.totalBeanNum}京豆，${$.totalNum}金币`
         $.msg($.name, '', `京东账号${$.index} ${$.nickName}\n${message}`);
         // 云端大于10元无门槛红包时进行通知推送
-        if ($.isNode() && $.totalScore >= 10000) await notify.sendNotify(`${$.name} - 京东账号${$.index} - ${$.nickName}`, `京东账号${$.index} ${$.nickName}\n当前金币：${$.totalScore}个\n可兑换无门槛红包：${parseInt($.totalNum) / 1000}元\n`,)
+        if ($.isNode() && $.totalScore >= 10000) await notify.sendNotify(`${$.name} - 京东账号${$.index} - ${$.nickName}`, `京东账号${$.index} ${$.nickName}\n当前金币：${$.totalScore}个\n可兑换无门槛红包：${parseInt($.totalNum) / 1000}元`,)
         resolve();
     })
 }
@@ -241,7 +243,7 @@ function getMyFriendShareCode() {
                             if ($.index <= 2) {
                                 $.newShareCodes[$.index] = data.data.shareTaskRes.itemId;
                             }
-                            console.log(`\n第${$.index}个账号（${$.nickName || $.UserName}）的${$.name}好友互助码: ${data.data.shareTaskRes.itemId}\n`);
+                            console.log(`第${$.index}个账号（${$.nickName || $.UserName}）的${$.name}好友互助码: ${data.data.shareTaskRes.itemId}`);
                         } else {
                             console.log(`已满5人助力,暂时看不到您的${$.name}好友助力码`)
                         }
@@ -315,9 +317,11 @@ function doTask(body, func = "doInteractTask") {
 }
 
 async function helpFriends() {
-    for (let code of $.newShareCodes) {
-        if (!code) continue
-        console.log(`\n第${$.index}个账号开始助力好友: ${code}\n`);
+    for (let inx in $.newShareCodes) {
+        const code = newShareCodes[inx];
+        //跳过自己给自己助力
+        if (!code || inx == $.index) continue;
+        console.log(`第${$.index}个账号开始助力好友: ${code}`);
         await doTask({ "itemId": code, "taskId": "3", "mpVersion": "3.1.0" }, "doHelpTask")
     }
 }
