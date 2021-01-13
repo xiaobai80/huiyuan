@@ -323,7 +323,7 @@ function doTask(body, func = "doInteractTask") {
 
 async function helpFriends() {
     for (let inx in $.newShareCodes) {
-        const code = newShareCodes[inx];
+        const code = $.newShareCodes[inx];
         //跳过自己给自己助力
         if (!code || inx == $.index) continue;
         console.log(`第${$.index}个账号[${$.nickName}]开始助力第${(inx+1).toString()}个好友的助力码: ${code}`);
