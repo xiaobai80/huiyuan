@@ -1,3 +1,5 @@
+const { time } = require('console');
+
 /*
 ***注 此脚本只支持github-action多账户ck运行***
 
@@ -36,7 +38,7 @@ cookiesArr = [...new Set(CookieJDs.filter(item => item !== "" && item !== null &
 
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
-let users = [];
+let users = [], fullTeam = [];
 
 !(async () => {
     if((new Date()).getHours() < 1){
@@ -73,22 +75,31 @@ let users = [];
         }
         await jdWish()
     }
-    console.log(`\n\n\n-------------------------------------------------------------`);
+    console.log(`\n\n\n----------------------------\n开始团助力\n----------------------------`);
     for (let i = 0; i < cookiesArr.length; i++) {
         $.index = i + 1;
-        $.canHelp = true
+        $.canHelp = true;
         if (!cookiesArr[i]) continue;
         cookie = cookiesArr[i];
-        for (let j = 0; j < $.tuanList.length; ++j) {
-            if(i == j || typeof $.tuanList[j] == "undefined") {
+        for (let j = 1; j < $.tuanList.length; ++j) {
+            let jump = false;
+            for (const t of fullTeam) {
+                if(t == j){
+                    // 跳过团已满的
+                    jump = true;
+                    break;
+                }
+            }
+            if($.index == j || jump || typeof $.tuanList[j] == "undefined") {
                 //跳过自己给自己团助力
                 continue;
             }
-            console.log(`第${parseInt(i+1)}个账号开始助力第${parseInt(j+1)}个团`);
-            await helpFriendTuan($.tuanList[j]);
+            console.log(`第${$.index}个账号开始助力第${j}个团`);
+            await helpFriendTuan(j);
             if (!$.canHelp) break
         }
     }
+    console.log("今日脚本已执行完成。");
 })()
     .catch((e) => {
         $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -134,17 +145,18 @@ async function jdWish() {
 
 function showMsg() {
     return new Promise(async resolve => {
-        message += `本次获得${parseInt($.totalBeanNum) - $.nowBean}京豆，${parseInt($.totalNum) - $.nowNum}金币`
+        message += `\n任务完成：本次获得${parseInt($.totalBeanNum) - $.nowBean}京豆，${parseInt($.totalNum) - $.nowNum}金币,`
         message += `累计获得${$.totalBeanNum}京豆，${$.totalNum}金币`
-        $.msg($.name, '', `京东账号${$.index} ${$.nickName}\n${message}`);
+        console.log(message);
         // 云端大于10元无门槛红包时进行通知推送
         if ($.isNode() && $.totalScore >= 10000) await notify.sendNotify(`${$.name} - 京东账号${$.index} - ${$.nickName}`, `京东账号${$.index} ${$.nickName}\n当前金币：${$.totalScore}个\n可兑换无门槛红包：${parseInt($.totalNum) / 1000}元`,)
         resolve();
     })
 }
 
-function helpFriendTuan(body) {
+function helpFriendTuan(inx) {
     return new Promise(resolve => {
+        const body = $.tuanList[inx];
         $.get(taskTuanUrl("vvipclub_distributeBean_assist", body), async (err, resp, data) => {
             try {
                 if (err) {
@@ -158,7 +170,7 @@ function helpFriendTuan(body) {
                         } else {
                             if (data.resultCode === '9200008') console.log('不能助力自己')
                             else if (data.resultCode === '9200011') console.log('已经助力过')
-                            else if (data.resultCode === '2400205') console.log('团已满')
+                            else if (data.resultCode === '2400205') {console.log(`第${inx}个团已满`); fullTeam.push(inx);}
                             else if (data.resultCode === '2400203') { console.log('助力次数已耗尽'); $.canHelp = false }
                             else console.log(`未知错误`)
                         }
@@ -320,7 +332,7 @@ async function helpFriends() {
         const code = $.newShareCodes[inx];
         //跳过自己给自己助力
         if (!code || inx == $.index) continue;
-        console.log(`第${$.index}个账号[${$.nickName}]开始助力第${(inx+1).toString()}个好友的助力码: ${code}`);
+        console.log(`第${$.index}个账号[${$.nickName}]开始助力第${inx}个好友的助力码: ${code}`);
         await doTask({ "itemId": code, "taskId": "3", "mpVersion": "3.1.0" }, "doHelpTask")
     }
 }
