@@ -130,7 +130,7 @@ async function jdWish() {
     await getTaskList()
     $.nowBean = parseInt($.totalBeanNum)
     $.nowNum = parseInt($.totalNum)
-    console.log(`第${$.index}个账号开始做任务`);
+    console.log(`第${$.index}个账号${$.taskList.length>0 ? "开始做任务" : "无任务或者已经做完了"}`);
     for (let i = 0; i < $.taskList.length; ++i) {
         let task = $.taskList[i]
         if (task['taskId'] === 1 && task['status'] !== 2) {
@@ -258,8 +258,7 @@ function getMyFriendShareCode() {
                             }
                             console.log(`第${$.index}个账号（${$.nickName || $.UserName}）的${$.name}好友互助码: ${data.data.shareTaskRes.itemId}`);
                         } else {
-                            console.log("function getMyFriendShareCode() resp:\n", resp);
-                            console.log(`已满5人助力,暂时看不到您的${$.name}好友助力码`)
+                            console.log(`已满5人助力,暂时看不到您的${$.name}好友助力码`);
                         }
                     }
                 }
