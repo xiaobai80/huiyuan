@@ -81,17 +81,9 @@ let users = [], fullTeam = [];
         $.canHelp = true;
         if (!cookiesArr[i]) continue;
         cookie = cookiesArr[i];
-        for (let j = 1; j < $.tuanList.length; ++j) {
-            let jump = false;
-            for (const t of fullTeam) {
-                if(t == j){
-                    // 跳过团已满的
-                    jump = true;
-                    break;
-                }
-            }
-            if($.index == j || jump || typeof $.tuanList[j] == "undefined") {
-                //跳过自己给自己团助力
+        for (let j = 1; j < $.tuanList.length; j++) {
+            //跳过自己的团、无效团、满成员的团
+            if($.index == j || !$.tuanList.hasOwnProperty(j) || !$.tuanList[j] || checkIsFullTeam(j)) {
                 continue;
             }
             console.log(`第${$.index}个账号开始助力第${j}个团`);
@@ -108,6 +100,16 @@ let users = [], fullTeam = [];
         $.done();
     })
 
+function checkIsFullTeam(inx){
+    // 跳过团已满的
+    for (let t of fullTeam) {
+        if(t == inx){
+            return true;
+        }
+    }
+    return false;
+}
+
 async function jdWish() {
     $.bean = 0
     $.tuan = false;
@@ -117,8 +119,8 @@ async function jdWish() {
     if (!$.tuan && $.index <= 2) {
         // 前两个开团,其余不用开团直接助力这俩团就行
         console.log(`给第${$.index}个账号开团`);
-        await openTuan()
-        if ($.hasOpen) await getUserTuanInfo()
+        await openTuan();
+        if ($.hasOpen) await getUserTuanInfo(true);
     }
     if ($.tuan) {
         console.log(`已获取第${$.index}个账号的团信息`);
@@ -172,7 +174,7 @@ function helpFriendTuan(inx) {
                             else if (data.resultCode === '9200011') console.log('已经助力过')
                             else if (data.resultCode === '2400205') {console.log(`第${inx}个团已满`); fullTeam.push(inx);}
                             else if (data.resultCode === '2400203') { console.log('助力次数已耗尽'); $.canHelp = false }
-                            else console.log(`未知错误`)
+                            else console.log(`未知错误: data\n`, data)
                         }
                     }
                 }
@@ -185,7 +187,7 @@ function helpFriendTuan(inx) {
     })
 }
 
-function getUserTuanInfo() {
+function getUserTuanInfo(setTuan = false) {
     let body = { "paramData": { "channel": "FISSION_BEAN" } }
     return new Promise(resolve => {
         $.get(taskTuanUrl("distributeBeanActivityInfo", body), async (err, resp, data) => {
@@ -196,7 +198,7 @@ function getUserTuanInfo() {
                 } else {
                     if (safeGet(data)) {
                         data = JSON.parse(data);
-                        if (!data.data.canStartNewAssist)
+                        if (!data.data.canStartNewAssist && setTuan)
                             $.tuan = {
                                 "activityIdEncrypted": data.data.id,
                                 "assistStartRecordId": data.data.assistStartRecordId,
@@ -256,6 +258,7 @@ function getMyFriendShareCode() {
                             }
                             console.log(`第${$.index}个账号（${$.nickName || $.UserName}）的${$.name}好友互助码: ${data.data.shareTaskRes.itemId}`);
                         } else {
+                            console.log("function getMyFriendShareCode() resp:\n", resp);
                             console.log(`已满5人助力,暂时看不到您的${$.name}好友助力码`)
                         }
                     }
