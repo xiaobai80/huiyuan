@@ -76,7 +76,7 @@ let users = [], fullTeam = [];
         await jdWish()
     }
     console.log(`\n\n\n----------------------------\n开始团助力\n----------------------------`);
-    for (let i = 0; i < cookiesArr.length; i++) {
+    for (let i = 1; i < cookiesArr.length; i++) {
         $.index = i + 1;
         $.canHelp = true;
         if (!cookiesArr[i]) continue;
@@ -198,7 +198,7 @@ function getUserTuanInfo(setTuan = false) {
                 } else {
                     if (safeGet(data)) {
                         data = JSON.parse(data);
-                        if (!data.data.canStartNewAssist && setTuan)
+                        if (setTuan && !data.data.canStartNewAssist)
                             $.tuan = {
                                 "activityIdEncrypted": data.data.id,
                                 "assistStartRecordId": data.data.assistStartRecordId,
