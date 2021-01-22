@@ -25,18 +25,20 @@ cron "0 0 * * *" script-path=https://raw.githubusercontent.com/lxk0301/jd_script
 京东赚赚 = type=cron,script-path=https://raw.githubusercontent.com/lxk0301/jd_scripts/master/jd_jdzz.js, cronexpr="0 0 * * *", timeout=200, enable=true
  */
 
+//前面几个助力团
+const topn = 3;
 
 const $ = new Env('京东赚赚');
 const notify = $.isNode() ? {sendNotify: () => {console.log(...arguments)}} : '';
 
 $.newShareCodes = [];
-const randomCount = $.isNode() ? 20 : 5;
 let jdNotify = true; // 是否关闭通知，false打开通知推送，true关闭通知推送
 let cookiesArr = [], cookie = '', message;
 let CookieJDs = process.env.JD_COOKIE.split('&');
 cookiesArr = [...new Set(CookieJDs.filter(item => item !== "" && item !== null && item !== undefined))];
 
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
+
 
 let users = [], fullTeam = [];
 
@@ -116,7 +118,7 @@ async function jdWish() {
     $.hasOpen = false;
     await getMyFriendShareCode();
     await getUserTuanInfo();
-    if (!$.tuan && $.index <= 2) {
+    if (!$.tuan && $.index <= topn) {
         // 前两个开团,其余不用开团直接助力这俩团就行
         console.log(`给第${$.index}个账号开团`);
         await openTuan();
@@ -253,7 +255,7 @@ function getMyFriendShareCode() {
                     if (safeGet(data)) {
                         data = JSON.parse(data);
                         if (data.data.shareTaskRes) {
-                            if ($.index <= 2) {
+                            if ($.index <= topn) {
                                 $.newShareCodes[$.index] = data.data.shareTaskRes.itemId;
                             }
                             console.log(`第${$.index}个账号（${$.nickName || $.UserName}）的${$.name}好友互助码: ${data.data.shareTaskRes.itemId}`);
