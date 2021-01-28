@@ -4,40 +4,40 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 const newShareCodesPk = [
     "IgNWdiLGaPaAvmHOAAaovCBNL6kvOaPHoljqjwT8SF-bKmdB1rtTOSneZGWwCGyt"
 ];
-
 let CookieJDs = process.env.JD_COOKIE.split('&');
 const cookiesArr = [...new Set(CookieJDs.filter(item => item !== "" && item !== null && item !== undefined))];
+
 let ua = null;
 let secretp = null;
+let cookie = null;
 const $ = new Env('jdnian');
 
-(async ()=>{
-    for(let cookie of cookiesArr){
-        if (!cookie) {
+(async () => {
+    for(cookie of cookiesArr){
+        if (!cookie || cookie === null) {
             continue
         }
         ua = initUserAgents();
         const UserName = decodeURIComponent(cookie.match(/pt_pin=(.+?);/) && cookie.match(/pt_pin=(.+?);/)[1]);
         console.log(`******开始京东账号${UserName}*********`);
-        const {error, nikname} = await TotalBean(cookie);
-        if(error || nikname == ""){
+        const {error, nickname} = await TotalBean();
+        if(error || nickname == ""){
             console.log(error);
             continue;
         }
         await getHomeData();
 
         // helpFriendsPK
-        await helpFriendsPK()
-
         for (let code of newShareCodesPk) {
             await deylayExecute(1234);
             if (!code) continue
-            console.log(`${nikname}去助力PK好友:${code}`);
-            if(!await pkAssignGroup(cookie, code)){
+            console.log(`${nickname}去助力PK好友:${code}`);
+            if(!await pkAssignGroup(code)){
                 break;
             }
         }
     }
+    console.log("运行结束");
 })()
 
 function deylayExecute(second){
@@ -57,7 +57,7 @@ function encode(data, aa, extraData) {
     return { "ss": (JSON.stringify(temp)) };
 }
 
-function pkAssignGroup(cookie, inviteId) {
+function pkAssignGroup(inviteId) {
     let temp = {
         "confirmFlag": 1,
         "inviteId": inviteId,
@@ -74,7 +74,6 @@ function pkAssignGroup(cookie, inviteId) {
     }
     return new Promise(resolve => {
         let options = taskPostUrl("nian_pk_assistGroup", body, "nian_pk_assistGroup");
-        headers.Cookie = cookie;
         $.post(options, async (err, resp, data) => {
             let canhelp = true;
             try {
@@ -110,7 +109,7 @@ function taskPostUrl(function_id, body = {}, function_id2) {
         url,
         body: `functionId=${function_id}&body=${escape(JSON.stringify(body))}&client=wh5&clientVersion=1.0.0`,
         headers: {
-            "Cookie": null,
+            Cookie: cookie,
             "origin": "https://h5.m.jd.com",
             "referer": "https://h5.m.jd.com/",
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -119,7 +118,7 @@ function taskPostUrl(function_id, body = {}, function_id2) {
     }
 }
 
-function TotalBean(cookie) {
+function TotalBean() {
     return new Promise(resolve => {
         const options = {
             "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
@@ -137,7 +136,7 @@ function TotalBean(cookie) {
         $.post(options, (err, resp, data) => {
             let ret = {
                 error: "",
-                nikname: "",
+                nickname: "",
             };
             try {
                 if (err) {
