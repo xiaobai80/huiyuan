@@ -119,7 +119,7 @@ function taskPostUrl(function_id, body = {}, function_id2) {
     }
 }
 
-function TotalBean() {
+function TotalBean(cookie) {
     return new Promise(resolve => {
         const options = {
             "url": `https://wq.jd.com/user/info/QueryJDUserInfo?sceneval=2`,
