@@ -7,12 +7,12 @@ const newShareCodesPk = [
 
 let CookieJDs = process.env.JD_COOKIE.split('&');
 const cookiesArr = [...new Set(CookieJDs.filter(item => item !== "" && item !== null && item !== undefined))];
-
 let ua = null;
 let secretp = null;
+const $ = new Env('jdnian');
 
 (async ()=>{
-    for(let cookie in cookiesArr){
+    for(let cookie of cookiesArr){
         if (!cookie) {
             continue
         }
@@ -30,12 +30,12 @@ let secretp = null;
         await helpFriendsPK()
 
         for (let code of newShareCodesPk) {
+            await deylayExecute(1234);
             if (!code) continue
             console.log(`${nikname}去助力PK好友:${code}`);
             if(!await pkAssignGroup(cookie, code)){
                 break;
             }
-            await deylayExecute(12345);
         }
     }
 })()
@@ -265,7 +265,7 @@ function initUserAgents() {
         "jdapp;iPhone;9.2.2;14.2;%E4%BA%AC%E4%B8%9C/9.2.2 CFNetwork/1206 Darwin/20.1.0",
         "jdapp;android;9.3.5;10;2346663656561603-4353564623932316;network/wifi;model/ONEPLUS A5010;addressid/138709979;aid/2dfceea045ed292a;oaid/;osVer/29;appBuild/86390;partner/jingdong;eufv/1;Mozilla/5.0 (Linux; Android 10; ONEPLUS A5010 Build/QKQ1.191014.012; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/77.0.3865.120 MQQBrowser/6.2 TBS/045230 Mobile Safari/537.36"
     ];
-    return randomNumber(0, userAgents.length);
+    return userAgents[randomNumber(0, userAgents.length)];
 }
 
 function randomNumber(min = 0, max = 100) {
