@@ -10,6 +10,7 @@ const cookiesArr = [...new Set(CookieJDs.filter(item => item !== "" && item !== 
 
 let ua = null;
 let secretp = null;
+const $ = new Env('jdnian');
 
 (async ()=>{
     for(let cookie in cookiesArr){
@@ -30,12 +31,12 @@ let secretp = null;
         await helpFriendsPK()
 
         for (let code of newShareCodesPk) {
+            await deylayExecute(1234);
             if (!code) continue
             console.log(`${nikname}去助力PK好友:${code}`);
             if(!await pkAssignGroup(cookie, code)){
                 break;
             }
-            await deylayExecute(12345);
         }
     }
 })()
