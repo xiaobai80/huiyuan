@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name:  京东炸年兽
+name:  京东新年压岁钱
 
 on:
     workflow_dispatch:
@@ -10,7 +10,7 @@ on:
     watch:
         types: [started]
     repository_dispatch:
-        types: jd_nian
+        types: jd_newYearMoney
 
 jobs:
     build:
@@ -26,9 +26,9 @@ jobs:
               run: |
                   npm install
                   npm install got tough-cookie
-            - name: "运行 【京东炸年兽】"
+            - name: "运行 【京东新年压岁钱】"
               run: |
-                  node jd_nian.js
+                  node jd_newYearMoney.js
               env:
                   JD_COOKIE: ${{ secrets.JD_COOKIE || github.event.client_payload.JD_COOKIE }}
                   JD_DEBUG: ${{ secrets.JD_DEBUG || github.event.client_payload.JD_DEBUG }}
